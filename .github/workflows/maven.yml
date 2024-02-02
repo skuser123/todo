@@ -1,28 +1,40 @@
+
 name: Maven Build and Test
 
 on:
   push:
     branches:
-      - main
+      - main  # You can change this to match your main branch name
+  pull_request:
+    branches:
+      - main  # You can change this to match your main branch name
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Set up JDK 1.8
+    - name: Set up JDK 11
       uses: actions/setup-java@v2
       with:
-        distribution: 'adopt'
-        java-version: '1.8'
+        java-version: 11
 
     - name: Build with Maven
-      run: |
-        mvn clean install
+      run: mvn -B clean package
 
-    - name: Run Tests
-      run: |
-        mvn test
+    - name: Test with Maven
+      run: mvn test
+
+    - name: Save Test Results
+      if: always()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: target/surefire-reports  # adjust the path based on your project structure
+
+    - name: Deploy Artifact
+      if: success()
+      # Add your deployment steps here, e.g., deploying to a server, publishing to a repository, etc.
